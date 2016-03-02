@@ -5,15 +5,18 @@ Provides an abstract class for database operations.
 import abc
 
 class Database:
+    """
+    Abstract class for a database.
+    """
     @abc.abstractmethod
-    def _connect(self):
+    def connect(self):
         """
         Opens a connection to the database.
         """
         return
 
     @abc.abstractmethod
-    def _disconnect(self):
+    def disconnect(self):
         """
         Closes a connection to the database.
         """

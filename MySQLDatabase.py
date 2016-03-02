@@ -15,9 +15,9 @@ class MySQLDatabase(Database):
         self.user = user
         self.password = password
         self.database = database
-        self._connect()
+        self.connect()
 
-    def _connect(self):
+    def connect(self):
         self.connection = mdb.connect(
             self.host,
             self.user,
@@ -25,7 +25,7 @@ class MySQLDatabase(Database):
             self.database)
         self.cursor = self.connection.cursor()
 
-    def _disconnect(self):
+    def disconnect(self):
         self.connection.close()
 
     def commit(self):
@@ -35,3 +35,14 @@ class MySQLDatabase(Database):
     def query(self, query_string):
         self.cursor.execute(query_string)
         return self.cursor
+
+    def query(self, query_string, query_values):
+        self.cursor.execute(query_string, query_values)
+        return self.cursor
+
+    @property
+    def last_insert_id(self):
+        """
+        Returns the last inserted ID.
+        """
+        return self.cursor.lastrowid
