@@ -30,7 +30,7 @@ class Database:
         return
 
     @abc.abstractmethod
-    def query(self, query_string):
+    def query(self, query_string, query_values):
         """
         Sends a query to the database.
         Returns the result.

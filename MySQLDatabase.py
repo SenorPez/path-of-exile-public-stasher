@@ -32,12 +32,11 @@ class MySQLDatabase(Database):
         self.cursor.close()
         self.connection.commit()
 
-    def query(self, query_string):
-        self.cursor.execute(query_string)
-        return self.cursor
-
-    def query(self, query_string, query_values):
-        self.cursor.execute(query_string, query_values)
+    def query(self, query_string, query_values=None):
+        if query_values:
+            self.cursor.execute(query_string, query_values)
+        else:
+            self.cursor.execute(query_string)
         return self.cursor
 
     @property
