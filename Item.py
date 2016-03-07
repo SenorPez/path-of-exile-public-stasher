@@ -40,6 +40,9 @@ class Item:
 
         self.database.query(query_string, query_values+query_values)
 
+        item_inserted = True if self.database.affected_rows == 1 \
+            else False
+
         try:
             item_note = item_data['note']
         except KeyError:
@@ -63,8 +66,9 @@ class Item:
                 query_values = (item_data['id'], item_data['note'])
                 self.database.query(query_string, query_values)
 
-        _ = [self._dispatcher(key, value) for key, value \
-            in item_data.items() if isinstance(value, list)]
+        if item_inserted:
+            _ = [self._dispatcher(key, value) for key, value \
+                in item_data.items() if isinstance(value, list)]
 
     def _dispatcher(self, key, value):
         try:

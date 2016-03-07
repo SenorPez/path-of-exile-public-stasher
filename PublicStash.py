@@ -5,9 +5,10 @@ Call directly to monitor stashes.
 from time import sleep
 
 import requests
-from MySQLDatabase import MySQLDatabase as Database
+from tqdm import tqdm
 
 from Item import Item
+from MySQLDatabase import MySQLDatabase as Database
 
 class PublicStash:
     """
@@ -85,12 +86,16 @@ if __name__ == "__main__":
             print("Processing {} public stashes. Next change ID: {}".\
                 format(
                     len(PUBLIC_STASH_DATA['stashes']), NEXT_CHANGE_ID))
-            for public_stash in PUBLIC_STASH_DATA['stashes']:
-                try:
-                    PublicStash(public_stash, DATABASE)
-                except ValueError:
-                    print("Error in stash: {}".format(public_stash))
-            sleep(1)
+            with tqdm(
+                    total=len(PUBLIC_STASH_DATA['stashes']),
+                    desc="Public Stash") as pbar:
+                for public_stash in PUBLIC_STASH_DATA['stashes']:
+                    try:
+                        PublicStash(public_stash, DATABASE)
+                    except ValueError:
+                        print("Error in stash: {}".format(public_stash))
+                    pbar.update()
+                sleep(1)
 
     except KeyboardInterrupt:
         print("Shutting down...")

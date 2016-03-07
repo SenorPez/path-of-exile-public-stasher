@@ -47,3 +47,10 @@ class MySQLDatabase(Database):
         Returns the last inserted ID.
         """
         return self.cursor.lastrowid
+
+    @property
+    def affected_rows(self):
+        """
+        Returns the number of rows affected by last operation.
+        """
+        return self.connection.affected_rows()
