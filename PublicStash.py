@@ -7,22 +7,24 @@ from time import sleep
 import requests
 from MySQLDatabase import MySQLDatabase as Database
 
-from StashItem import StashItem
-
+from Item import Item
 
 class PublicStash:
     """
     A class representing a public stash tab.
     """
     def __init__(self, stash, database):
-        self.table_name = "publicStashTabs"
+        if stash['accountName'] is None:
+            raise ValueError
+        else:
+            self.table_name = "publicStashTabs"
 
-        self.stash_id = stash['id']
+            self.stash_id = stash['id']
 
-        self.database = database
-        self.database.connect()
-        self._database_worker(stash)
-        self.database.commit()
+            self.database = database
+            self.database.connect()
+            self._database_worker(stash)
+            self.database.commit()
 
     def _database_worker(self, stash_data):
         stash_properties = {key:value for key, value \
@@ -47,20 +49,25 @@ class PublicStash:
             in stash_data.items() if isinstance(value, list)]
 
     def _dispatcher(self, key, value):
-        if key == "items":
-            _ = [StashItem(
-                self.stash_id,
-                item_data,
-                self.database) \
-                     for item_data in value]
+        try:
+            if key == "items":
+                _ = [Item(
+                    item_data,
+                    self) \
+                        for item_data in value]
+            else:
+                raise ValueError("Unknown key: {}.".format(key))
+        except ValueError:
+            raise
 
 if __name__ == "__main__":
     NEXT_CHANGE_ID = None
     DATABASE = Database(
         'localhost',
         'poe_public_stash',
-        'WYPuw4LWPKjMy8jZ',
+        'ee84h4rX8MxaraBL',
         'pathofexile')
+
     try:
         while True:
             if NEXT_CHANGE_ID is not None:
@@ -73,14 +80,16 @@ if __name__ == "__main__":
                     "http://www.pathofexile.com/api/public-stash-tabs")
 
             PUBLIC_STASH_DATA = REQUEST.json()
-
             NEXT_CHANGE_ID = PUBLIC_STASH_DATA['next_change_id']
 
-            print("Processing {} public stashes.Next change ID: {}".\
+            print("Processing {} public stashes. Next change ID: {}".\
                 format(
                     len(PUBLIC_STASH_DATA['stashes']), NEXT_CHANGE_ID))
-            _ = [PublicStash(stash, DATABASE) \
-                for stash in PUBLIC_STASH_DATA['stashes']]
+            for public_stash in PUBLIC_STASH_DATA['stashes']:
+                try:
+                    PublicStash(public_stash, DATABASE)
+                except ValueError:
+                    print("Error in stash: {}".format(public_stash))
             sleep(1)
 
     except KeyboardInterrupt:

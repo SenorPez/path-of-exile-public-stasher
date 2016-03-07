@@ -22,7 +22,9 @@ class MySQLDatabase(Database):
             self.host,
             self.user,
             self.password,
-            self.database)
+            self.database,
+            charset='utf8',
+            use_unicode=True)
         self.cursor = self.connection.cursor()
 
     def disconnect(self):
